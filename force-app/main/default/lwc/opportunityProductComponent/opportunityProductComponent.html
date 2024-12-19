@@ -1,0 +1,29 @@
+<template>
+      <lightning-card title="Opportunité produits" icon-name="standard:opportunity">
+
+        <template if:false={noproduct}>
+           <template if:true ={showMessage}>
+                <lightning-tile class ="slds-m-around_small slds-box slds-p-around_medium lgc-bg slds-theme_warning slds-theme_alert-texture slds-text-bold">
+                 <p> Vous avez au moins une ligne avec un problème de quantité, veuillez supprimer cette ligne ou réduire sa quantité. <br>Si vous avez absolument besoin de plus de produits, veuillez contacter votre administrateur système. </p>
+                </lightning-tile>
+            </template>
+
+            <div style="height: 300px;">
+                <lightning-datatable
+                        key-field="id"
+                        data={opportunityLineItem}
+                        columns={columns}
+                        class="slds-theme_default"
+                        onrowaction={handleRowAction}>
+                </lightning-datatable>
+            </div>
+        </template>
+            <template if:true={noproduct}> 
+                <div class = noProductText>
+                     <p>Vous n'avez aucune ligne de produits pour le moment. <br>1.Veuillez tout d'abord selectionner un Catalogue (Pricebook) <br>2.Selectionnez ensuite les produits à ajouter. </p>
+                </div>
+        </template>
+ </lightning-card>
+</template>
+
+
