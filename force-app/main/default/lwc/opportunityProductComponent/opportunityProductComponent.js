@@ -52,7 +52,7 @@ export default class OpportunityProductComponent extends LightningElement {
         } else if (error) {
             console.error('Erreur lors de la récupération des données :', error);
             this.opportunityLineItem = [];
-            this.noproduct = true;
+            // ????? this.noproduct = true;
         }
     }
 
@@ -95,18 +95,19 @@ export default class OpportunityProductComponent extends LightningElement {
         switch (columnName){
         
         case 'supprimer': 
-
-            deleteOppLineItem (itemToDelete)
+        
+            deleteOppLineItem ({opportunityLineItemId:itemToDelete })
                 .then(() => {
                     console.log('succès de la suppr');
-                    // rafraichir les données
+                    // rafraichir la page => refresh apex
                 })
                 .catch((error) => {
                     console.log('erreur de la suppr');
                 });// Appel de la méthode apex pour supprimer l'enregistrement correspondant à la ligne
                 // Penser à permettre de supprimer la ligne également
                 // La méthode retourne une Promesse (promise) car elle effectue une requete serveur via apex (et elle n'est pas wired)
-            break
+            
+                break
             
         case 'voir_produit':
 
@@ -115,7 +116,8 @@ export default class OpportunityProductComponent extends LightningElement {
             break
 
         default: 
-        }
+        
+    }
     }  // La méthode récupère l'évènement rowaction en paramètre et en fonction du bouton cliqué exécute du code
      
 }
