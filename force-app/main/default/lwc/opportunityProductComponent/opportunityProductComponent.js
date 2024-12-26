@@ -2,7 +2,8 @@ import { LightningElement, wire, track, api } from 'lwc';
 import getOpportunityProductList from '@salesforce/apex/OpportunityProductController.getOpportunityProductList';
 import getSystemProfile from '@salesforce/apex/SystemProfile.getSystemProfile';
 import deleteOppLineItem from '@salesforce/apex/OpportunityProductController.deleteOppLineItem';
-
+import { refreshApex } from '@salesforce/apex';
+import { updateRecord } from 'lightning/uiRecordApi';
 
 const columns = [
     {label: 'Item Id', fieldName : 'Id', type: 'Id'},
@@ -21,6 +22,7 @@ const columns = [
 export default class OpportunityProductComponent extends LightningElement {
     @api recordId;
     @track opportunityLineItem = [];
+    @track OpportunityProductResult;
     columns = columns;
     noproduct = true;
     showMessage = false;
@@ -28,8 +30,10 @@ export default class OpportunityProductComponent extends LightningElement {
     // Pas besoin de mettre let ou const car ce sont implicitement des paramètres de la classe
     
     @wire(getOpportunityProductList, { opportunityId: '$recordId' })
-    wiredgetOpportunityProductList({ data, error }) {
-        
+    wiredgetOpportunityProductList (result) {
+    this.OpportunityProductResult = result;
+    const { data, error } = result;
+
         if (data) {
             let quantityClass = '';
             this.columns = this.specificitySalesProfile(columns); // Appel à fetchUserProfile pour savoir si on affiche la column "voir produit"
@@ -99,7 +103,7 @@ export default class OpportunityProductComponent extends LightningElement {
             deleteOppLineItem ({opportunityLineItemId:itemToDelete })
                 .then(() => {
                     console.log('succès de la suppr');
-                    // rafraichir la page => refresh apex
+                    return refreshApex(this.OpportunityProductResult);
                 })
                 .catch((error) => {
                     console.log('erreur de la suppr');
@@ -119,5 +123,8 @@ export default class OpportunityProductComponent extends LightningElement {
         
     }
     }  // La méthode récupère l'évènement rowaction en paramètre et en fonction du bouton cliqué exécute du code
-     
+
+
+                
+
 }
