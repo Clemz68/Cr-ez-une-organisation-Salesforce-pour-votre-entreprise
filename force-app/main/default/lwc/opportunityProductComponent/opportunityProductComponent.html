@@ -1,29 +1,81 @@
 <template>
-      <lightning-card title="Opportunité produits" icon-name="standard:opportunity">
-
-        <template if:false={noproduct}>
-           <template if:true ={showMessage}>
-                <lightning-tile class ="slds-m-around_small slds-box slds-p-around_medium lgc-bg slds-theme_warning slds-theme_alert-texture slds-text-bold">
-                 <p> Vous avez au moins une ligne avec un problème de quantité, veuillez supprimer cette ligne ou réduire sa quantité. <br>Si vous avez absolument besoin de plus de produits, veuillez contacter votre administrateur système. </p>
-                </lightning-tile>
-            </template>
-
-            <div style="height: 300px;">
-                <lightning-datatable
-                        key-field="id"
-                        data={opportunityLineItem}
-                        columns={columns}
-                        class="slds-theme_default"
-                        onrowaction={handleRowAction}>
-                </lightning-datatable>
-            </div>
+  <div>
+    <!-- Lightning Card -->
+    <lightning-card title="Opportunité produits" icon-name="standard:opportunity" button >
+         <lightning-button variant="brand" label="Add Products" title="Add your opportunity product" onclick={handleAddProduct} icon-name="utility:add" class="slds-m-left_x-small"></lightning-button>
+      
+      <template if:false={noproduct}>
+        <template if:true={showMessage}>
+          <lightning-tile
+            class="slds-m-around_small slds-box slds-p-around_medium lgc-bg slds-theme_warning slds-theme_alert-texture slds-text-bold">
+            <p>
+              Vous avez au moins une ligne avec un problème de quantité, veuillez supprimer cette ligne ou réduire sa
+              quantité. <br />Si vous avez absolument besoin de plus de produits, veuillez contacter votre
+              administrateur système.
+            </p>
+          </lightning-tile>
         </template>
-            <template if:true={noproduct}> 
-                <div class = noProductText>
-                     <p>Vous n'avez aucune ligne de produits pour le moment. <br>1.Veuillez tout d'abord selectionner un Catalogue (Pricebook) <br>2.Selectionnez ensuite les produits à ajouter. </p>
-                </div>
-        </template>
-    </lightning-card>
+
+        <div style="height: 300px;">
+          <lightning-datatable key-field="id" data={opportunityLineItem} columns={columns}
+            class="slds-theme_default" onrowaction={handleRowAction}>
+          </lightning-datatable>
+        </div>
+      </template>
+
+      <template if:true={noproduct}>
+        <div class="noProductText">
+          <p>
+            Vous n'avez aucune ligne de produits pour le moment. <br />1.Veuillez tout d'abord sélectionner un
+            Catalogue (Pricebook) <br />2.Sélectionnez ensuite les produits à ajouter.
+          </p>
+        </div>
+      </template>
+
+    <!-- Modal  -->
+    <template if:true={showModal}>
+      <section role="dialog" tabindex="-1" aria-modal="true"
+        aria-label="Meaningful description of the modal content" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+          <!-- Close Button -->
+          <button class="slds-button slds-button_icon slds-modal__close" onclick={handleCloseModal}>
+            <svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
+              <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#close"></use>
+            </svg>
+            <span class="slds-assistive-text">Cancel and close</span>
+          </button>
+
+          <!-- Modal Content -->
+          <div class="slds-modal__content slds-p-around_medium slds-modal__content_headless" id="modal-content-id-1">
+            <p>
+              Confirmez-vous la suppression de cette Opportunité Produit? 
+            </p>
+          </div>
+
+          <!-- Modal Footer -->
+          <div class="slds-modal__footer">
+            <button class="slds-button slds-button_neutral" onclick={handleCloseModal}>Annuler</button>
+            <button class="slds-button slds-button_brand" onclick={handleModalSuppr}>Supprimer</button>
+          </div>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+
+    <template if:true={showSucces}>
+      <div class="slds-notify_container slds-is-relative">
+          <div class="slds-notify slds-notify_toast slds-theme_success" role="status">
+              <lightning-icon icon-name="action:approval" alternative-text="Success" variant="success" size="small" 
+                              class="slds-m-right_small slds-no-flex slds-align-top">
+              </lightning-icon>
+              <div class="slds-notify__content">
+                  <h2 class="slds-text-heading_small">
+                    Opportunity product successfully suppressed
+                  </h2>
+              </div>
+          </div>
+      </div>
+  </template>
+  </lightning-card>
+  </div>
 </template>
-
-
