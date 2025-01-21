@@ -3,7 +3,8 @@ import getOpportunityProductList from '@salesforce/apex/OpportunityProductContro
 import getSystemProfile from '@salesforce/apex/SystemProfile.getSystemProfile';
 import deleteOppLineItem from '@salesforce/apex/OpportunityProductController.deleteOppLineItem';
 import { refreshApex } from '@salesforce/apex';
-import { updateRecord } from 'lightning/uiRecordApi';
+import { NavigationMixin } from 'lightning/navigation';
+
 
 const columns = [
     {label: 'Item Id', fieldName : 'Id', type: 'Id'},
@@ -19,10 +20,13 @@ const columns = [
     {label: 'Supprimer', type: 'button-icon', typeAttributes: { iconName: 'utility:delete', name: 'supprimer', title: 'Clickez pour supprimer'}},
 ];
 
-export default class OpportunityProductComponent extends LightningElement {
+export default class OpportunityProductComponent extends NavigationMixin (LightningElement)
+{
     @api recordId;
     @track opportunityLineItem = [];
     @track OpportunityProductResult;
+    @track showModal = false;
+    @track showSucces = false;
     columns = columns;
     noproduct = true;
     showMessage = false;
@@ -89,7 +93,7 @@ export default class OpportunityProductComponent extends LightningElement {
         return columns;
     } // La méthode prend pas de paramètre et modifie le tableau en enlevant la colonne VoirProduit si le profil (obtenu en appelant une classe apex) est commercial
 
-    handleRowAction(event) {
+    async handleRowAction(event) {
         const columnName = event.detail.action.name;
         const itemToDelete = event.detail.row.Id;
         const itemToView = event.detail.row.Product2.Id;
@@ -99,32 +103,56 @@ export default class OpportunityProductComponent extends LightningElement {
         switch (columnName){
         
         case 'supprimer': 
-        
-            deleteOppLineItem ({opportunityLineItemId:itemToDelete })
-                .then(() => {
-                    console.log('succès de la suppr');
-                    return refreshApex(this.OpportunityProductResult);
-                })
-                .catch((error) => {
-                    console.log('erreur de la suppr');
-                });// Appel de la méthode apex pour supprimer l'enregistrement correspondant à la ligne
-                // Penser à permettre de supprimer la ligne également
-                // La méthode retourne une Promesse (promise) car elle effectue une requete serveur via apex (et elle n'est pas wired)
-            
-                break
-            
+        this.itemToDelete = itemToDelete;
+        this.showModal = true;
+
+             break;
+    
         case 'voir_produit':
 
             window.open("/lightning/r/Product2/"+itemToView+"/view",'_blank');
             // Ouvre l'url mentionné dans un nouvel onglet
-            break
-
-        default: 
-        
-    }
+            break;
+        }
+    
     }  // La méthode récupère l'évènement rowaction en paramètre et en fonction du bouton cliqué exécute du code
+    
+    handleModalSuppr(){
+    deleteOppLineItem ({opportunityLineItemId: this.itemToDelete })
+    .then(() => {
+        console.log('succès de la suppr');
+        this.showModal = false;
+        this.showToast();
+        return refreshApex(this.OpportunityProductResult);
+        
+    })
+    .catch((error) => {
+        console.log('erreur de la suppr');
+    });// Appel de la méthode apex pour supprimer l'enregistrement correspondant à la ligne
+    // Penser à permettre de supprimer la ligne également
+    // La méthode retourne une Promesse (promise) car elle effectue une requete serveur via apex (et elle n'est pas wired)
+    }
 
+    handleCloseModal() {
+        this.showModal = false;
+    }
 
-                
+    showToast() {
+        this.showSucces = true;
+        setTimeout(() => {
+            this.showSucces = false;
+        }, 3000); // Cache la notification après 3 secondes
+    }
 
+    handleAddProduct() {
+        this[NavigationMixin.Navigate]({
+            type: 'standard__action',
+            attributes: {
+                actionName: 'MultiAdd', // Action "Add Product"
+                recordId: this.recordId // L'ID de l'opportunité
+            }
+        });
+    }
 }
+
+
