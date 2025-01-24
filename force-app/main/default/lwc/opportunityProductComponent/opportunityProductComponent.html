@@ -9,9 +9,7 @@
           <lightning-tile
             class="slds-m-around_small slds-box slds-p-around_medium lgc-bg slds-theme_warning slds-theme_alert-texture slds-text-bold">
             <p>
-              Vous avez au moins une ligne avec un problème de quantité, veuillez supprimer cette ligne ou réduire sa
-              quantité. <br />Si vous avez absolument besoin de plus de produits, veuillez contacter votre
-              administrateur système.
+              {labels.MyQuantityLineError}
             </p>
           </lightning-tile>
         </template>
@@ -25,10 +23,7 @@
 
       <template if:true={noproduct}>
         <div class="noProductText">
-          <p>
-            Vous n'avez aucune ligne de produits pour le moment. <br />1.Veuillez tout d'abord sélectionner un
-            Catalogue (Pricebook) <br />2.Sélectionnez ensuite les produits à ajouter.
-          </p>
+            {labels.MyNoProductError}
         </div>
       </template>
 
@@ -42,20 +37,20 @@
             <svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
               <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#close"></use>
             </svg>
-            <span class="slds-assistive-text">Cancel and close</span>
+            <span class="slds-assistive-text">{labels.MyModalAssistive}</span>
           </button>
 
           <!-- Modal Content -->
           <div class="slds-modal__content slds-p-around_medium slds-modal__content_headless" id="modal-content-id-1">
             <p>
-              Confirmez-vous la suppression de cette Opportunité Produit? 
+              {labels.MyConfirmationSuppr1}
             </p>
           </div>
 
           <!-- Modal Footer -->
           <div class="slds-modal__footer">
-            <button class="slds-button slds-button_neutral" onclick={handleCloseModal}>Annuler</button>
-            <button class="slds-button slds-button_brand" onclick={handleModalSuppr}>Supprimer</button>
+            <button class="slds-button slds-button_neutral" onclick={handleCloseModal}>{labels.MyCancel}</button>
+            <button class="slds-button slds-button_brand" onclick={handleModalSuppr}>{labels.MyDelete}</button>
           </div>
         </div>
       </section>
@@ -70,7 +65,7 @@
               </lightning-icon>
               <div class="slds-notify__content">
                   <h2 class="slds-text-heading_small">
-                    Opportunity product successfully suppressed
+                    {labels.MyConfirmationSuppr2}
                   </h2>
               </div>
           </div>
