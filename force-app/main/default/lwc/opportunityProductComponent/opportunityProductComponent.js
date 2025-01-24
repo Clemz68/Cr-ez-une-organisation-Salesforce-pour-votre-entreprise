@@ -4,21 +4,21 @@ import getSystemProfile from '@salesforce/apex/SystemProfile.getSystemProfile';
 import deleteOppLineItem from '@salesforce/apex/OpportunityProductController.deleteOppLineItem';
 import { refreshApex } from '@salesforce/apex';
 import { NavigationMixin } from 'lightning/navigation';
+import { LABELS } from './labels';
 
-
+const labels = LABELS;
 const columns = [
-    {label: 'Item Id', fieldName : 'Id', type: 'Id'},
-    {label: 'Nom du produit', fieldName: 'productName', type: 'text' },
-    {label: 'Quantité', fieldName: 'Quantity', type: 'number', 
+    {label: labels.MyProductName, fieldName: 'productName', type: 'text' },
+    {label: labels.MyQuantity, fieldName: 'Quantity', type: 'number', 
     cellAttributes: { alignment:'left', class: {fieldName: 'quantityClass'} }},// fieldname rend la chose dynamique car je pointe vers un proprité de donnée qui peux changer dynamiquement
-    {label: 'Prix unitaire', fieldName: 'UnitPrice', type: 'currency' },
-    {label: 'Prix total', fieldName: 'TotalPrice', type: 'currency' },
-    {label: 'Quantité en Stock', fieldName: 'QuantityInStock', type: 'number'},
-    {label: 'Voir produit', fieldName: 'VoirProduit', type: 'button', initialWidth: 175, 
-    typeAttributes: { iconName: 'utility:preview', label: 'Voir Produit', variant:'brand', name: 'voir_produit', title: 'Cliquez pour voir le produit', },
+    {label: labels.MyUnit_Price, fieldName: 'UnitPrice', type: 'currency' },
+    {label: labels.MyTotal_Price, fieldName: 'TotalPrice', type: 'currency' },
+    {label: labels.MyQuantity_in_stock, fieldName: 'QuantityInStock', type: 'number'},
+    {label: labels.MySee_product, fieldName: 'VoirProduit', type: 'button', initialWidth: 175, 
+    typeAttributes: { iconName: 'utility:preview', label: labels.MySee_product, variant:'brand', name: 'voir_produit', title: 'Cliquez pour voir le produit', },
     cellAttributes: { alignment: 'center',}},
-    {label: 'Supprimer', type: 'button-icon', typeAttributes: { iconName: 'utility:delete', name: 'supprimer', title: 'Clickez pour supprimer'}},
-];
+    {label: labels.MyDelete, type: 'button-icon', typeAttributes: { iconName: 'utility:delete', name: 'supprimer', title: 'Clickez pour supprimer'}},
+    ]
 
 export default class OpportunityProductComponent extends NavigationMixin (LightningElement)
 {
@@ -27,12 +27,11 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
     @track OpportunityProductResult;
     @track showModal = false;
     @track showSucces = false;
-    columns = columns;
     noproduct = true;
     showMessage = false;
-   
-    // Pas besoin de mettre let ou const car ce sont implicitement des paramètres de la classe
-    
+    columns = columns
+    labels = LABELS;
+
     @wire(getOpportunityProductList, { opportunityId: '$recordId' })
     wiredgetOpportunityProductList (result) {
     this.OpportunityProductResult = result;
