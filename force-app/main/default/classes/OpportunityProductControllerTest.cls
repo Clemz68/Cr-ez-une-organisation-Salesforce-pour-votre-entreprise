@@ -1,11 +1,9 @@
 @IsTest
-private class OpportunityProductControllerTest {
+public class OpportunityProductControllerTest {
 
     @TestSetup
     static void makeData(){
-        Opportunity testOpp = OpportunityProductFactory.createTestOpportunity();
-        OpportunityLineItem testOppLineItem = OpportunityProductFactory.createTestOpportunityLineItem(testOpp.Id);
-        
+        OpportunityLineItem testOppLineItem = OpportunityProductFactory.createTestOpportunityLineItem();
     }
     //Appel de la méthode de la classe de test Factory pour créer une Opp et une OppLineItem qui contient l'ID de l'OPP
    

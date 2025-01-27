@@ -1,29 +1,63 @@
-public class OpportunityProductFactory {
-   
+@IsTest
 
-    public static Opportunity createTestOpportunity() {
-        Opportunity opp = new Opportunity(
+public class OpportunityProductFactory {
+
+    @IsTest 
+    public static OpportunityLineItem createTestOpportunityLineItem () {
+        
+        Account testAccount = new Account(
+        Name = 'Test Account'
+        );
+        insert testAccount;
+
+        Pricebook2 standardPricebook = new Pricebook2(
+
+        Id = Test.getStandardPricebookId(),
+
+        IsActive = true
+
+        );
+
+        //Execute an update DML on the Pricebook2 record, to make IsStandard to true
+
+        Update standardPricebook;
+
+        Opportunity TestOpp = new Opportunity(
                 Name= 'Test Opportunity',
                 StageName= 'Prospecting',
                 CloseDate= System.today().addDays(30),
-                Amount= 10000
+                Amount= 10000,
+                AccountId = testAccount.Id,
+                Pricebook2Id= standardPricebook.Id
         );
-        insert opp;
-        return opp;
-    }
+        insert TestOpp;
 
-    public static OpportunityLineItem createTestOpportunityLineItem (Id opportunityId) {
+        Product2 product = new Product2(
+            Name = 'Test Product',
+            IsActive = true
+        );
+        insert product;
+
+        PricebookEntry pricebookEntry = new PricebookEntry(
+            Pricebook2Id = standardPricebook.Id,
+            Product2Id = product.Id,
+            UnitPrice = 75000,
+            IsActive = true
+        );
+        insert pricebookEntry;
+
         OpportunityLineItem oppItem = new OpportunityLineItem(
                UnitPrice= 75000,
                Quantity= 1,
                ServiceDate= System.today().addDays(30),
-               OpportunityId= opportunityId    
+               OpportunityId= TestOpp.Id,
+               PricebookEntryId = pricebookEntry.Id   
         );
         insert oppItem;
         return oppItem;
     }
 
-    
+    @IsTest
     public static User createSystemProfile() {
         Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         User testUser = new User(
