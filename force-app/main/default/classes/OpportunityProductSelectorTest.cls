@@ -3,8 +3,7 @@ private class OpportunityProductSelectorTest {
 
     @TestSetup
     static void makeData(){
-        Opportunity testOpp = OpportunityProductFactory.createTestOpportunity();
-        OpportunityLineItem testOppLineItem = OpportunityProductFactory.createTestOpportunityLineItem(testOpp.Id);
+        OpportunityLineItem testOppLineItem = OpportunityProductFactory.createTestOpportunityLineItem();
         
     }
     //Appel de la méthode de la classe de test Factory pour créer une Opp et une OppLineItem qui contient l'ID de l'OPP
@@ -18,7 +17,7 @@ private class OpportunityProductSelectorTest {
         Assert.areNotEqual(0, results.size(), 'Should return at least one OppLineItem');
     }
     // Cherche l'Opp créée, appel de la méthode selector à tester en lui passant l'OP et assertion de trouver l'OP Id
-    
+
     @IsTest
     static void testDeleteItem(){
         
@@ -31,7 +30,5 @@ private class OpportunityProductSelectorTest {
         Assert.areEqual(0, deletedOppLineItem.size(), 'Should not return the deleted OppLineItem');
     }
 }
-
-
 
     

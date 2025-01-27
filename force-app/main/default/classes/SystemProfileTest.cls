@@ -2,15 +2,10 @@
 
 public class SystemProfileTest {
 
-    @TestSetup
-    static void makeData(){
-        User testUser = OpportunityProductFactory.createSystemProfile();
-    }
-
     @IsTest
     public static void getSystemProfileIdTest() {
-
-        User testUser = [SELECT Id FROM User LIMIT 1];
+   
+        User testUser = OpportunityProductFactory.createSystemProfile();
         System.runAs(testUser) {
     
         Test.startTest();
