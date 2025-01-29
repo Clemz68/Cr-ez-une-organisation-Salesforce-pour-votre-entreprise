@@ -29,6 +29,7 @@ private class OpportunityProductSelectorTest {
         List<OpportunityLineItem> deletedOppLineItem = [SELECT Id FROM OpportunityLineItem WHERE Id =:testOppLineItem.Id];
         Assert.areEqual(0, deletedOppLineItem.size(), 'Should not return the deleted OppLineItem');
     }
+    //// Supprime l'enregistrement test et assertion que celui ci est supprimé 
 }
 
     

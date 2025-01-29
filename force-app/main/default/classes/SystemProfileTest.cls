@@ -16,4 +16,5 @@ public class SystemProfileTest {
         Assert.areEqual('Standard User', profileName, 'Le profil récupéré doit correspondre à l’utilisateur de test');
         }
     }
+    // Appel la classe factory pour créer le test User, faire tourner le systeme en tant que testUser et appel la classe à tester, assertion que le profil est récupéré  
 }
