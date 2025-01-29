@@ -148,7 +148,7 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
         this.showSucces = true;
         setTimeout(() => {
             this.showSucces = false;
-        }, 3000); 
+        }, 10000); 
     }
 
     // Méthode sans paramètre pour aficher le toast et le cacher après 3 secondes

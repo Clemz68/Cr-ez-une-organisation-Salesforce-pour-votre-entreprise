@@ -10,7 +10,6 @@ public class OpportunityProductFactory {
         );
         insert testAccount;
 
-
         Pricebook2 standardPricebook = new Pricebook2(
         Id = Test.getStandardPricebookId(),
         IsActive = true
