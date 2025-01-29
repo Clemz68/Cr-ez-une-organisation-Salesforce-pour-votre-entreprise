@@ -10,7 +10,7 @@ const labels = LABELS;
 const columns = [
     {label: labels.MyProductName, fieldName: 'productName', type: 'text' },
     {label: labels.MyQuantity, fieldName: 'Quantity', type: 'number', 
-    cellAttributes: { alignment:'left', class: {fieldName: 'quantityClass'} }},// fieldname rend la chose dynamique car je pointe vers un proprité de donnée qui peux changer dynamiquement
+    cellAttributes: { alignment:'left', class: {fieldName: 'quantityClass'} }},
     {label: labels.MyUnit_Price, fieldName: 'UnitPrice', type: 'currency' },
     {label: labels.MyTotal_Price, fieldName: 'TotalPrice', type: 'currency' },
     {label: labels.MyQuantity_in_stock, fieldName: 'QuantityInStock', type: 'number'},
@@ -31,6 +31,7 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
     showMessage = false;
     columns = columns
     labels = LABELS;
+    userProfileName;
 
     @wire(getOpportunityProductList, { opportunityId: '$recordId' })
     wiredgetOpportunityProductList (result) {
@@ -39,30 +40,28 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
 
         if (data) {
             let quantityClass = '';
-            this.columns = this.specificitySalesProfile(columns); // Appel à fetchUserProfile pour savoir si on affiche la column "voir produit"
-            this.opportunityLineItem = data.map((record) => {// Aplatir les données pour faciliter l'accès aux champs imbriqués (en locurence product name et quantity in stock)
-            quantityClass = this.quantityAlert (record); // Appel à quantityAlert pour déterminer la quantityClass et mettre a jour showmessage si besoin
-
+            this.columns = this.specificitySalesProfile(columns); 
+            this.opportunityLineItem = data.map((record) => {
+            quantityClass = this.quantityAlert (record); 
             return {... record, 
-            quantityClass: quantityClass, //Appliquer le style css récupéré via la méthode à la colonne Quantity 
+            quantityClass: quantityClass,
             productName: record.Product2.Name, 
             QuantityInStock: record.Product2.QuantityInStock__c,  
         }}),
-
-
-       // Vérifier si la opplineitem a des valeurs si il y a des valeurs noproduct = true sinon false 
             console.log(this.opportunityLineItem);
-            console.log ()
             this.noproduct = this.opportunityLineItem.length === 0;
-            // si le tableau est vide, this.noproduct = true autrement = false
-
         } else if (error) {
             console.error('Erreur lors de la récupération des données :', error);
             this.opportunityLineItem = [];
-            // ????? this.noproduct = true;
         }
     }
-
+        
+        // @wire de la méthode Apex pour récupérer le tableau de manière réactif, le record Id est passé en argument
+        // La méthode wired prend le résult du @wire (contenant data, error) en tant que paramètre  
+        // Si récupération des données réussie appel d'une méthode pour check le profile de l'user 
+        // appel d'une méthode qui gère l'affichage d'un message d'erreur et le style css d'une colonne du tableau
+        // Utilisation de map pour aplatir les données: itère sur les lignes du tableau, facilite l'accès aux champs imbriqués (product name et quantity in stock) et applique le style au champ quantité 
+        // Si le tableau mapé ne contient pas de données noproduct = true ce qui permet l'affichage d'un msg via htlm
 
     quantityAlert(record) {
     
@@ -72,50 +71,54 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
         } else {
             return 'slds-text-color_success slds-text-bold'
         }
-    } // La méthode prend en paramètre l'enregistrement itéré, modifie showMessage selon la logique, et renvoie le style Css correspondant  
+    } 
+        // La méthode prend en paramètre l'enregistrement itéré par map, affiche ou non le msg souhaité, et renvoie le style Css correspondant  
 
     specificitySalesProfile(){
         
-        let userProfileName = getSystemProfile ()
+        this.userProfileName = getSystemProfile ()
     
         .then((userProfileName) => {
             console.log(`thenCatchApproach result =>`+ userProfileName);
             
             if (userProfileName === 'Commercial') {
                this.columns = [...columns].filter(columns => columns.fieldName != 'VoirProduit');
-            }// Si le profil est system administrator modifier le tableau columns en enlevant celui la colonne voir produit
+            }
         })
         .catch((error) => {
           console.log(`thenCatchApproach error => `);
         });
 
         return columns;
-    } // La méthode prend pas de paramètre et modifie le tableau en enlevant la colonne VoirProduit si le profil (obtenu en appelant une classe apex) est commercial
+    }   
+        // La méthode prend pas de paramètre et returne le tableau en enlevant la colonne VoirProduit si le profil obtenu en appelant une classe apex est = à commercial 
 
     async handleRowAction(event) {
-        const columnName = event.detail.action.name;
-        const itemToDelete = event.detail.row.Id;
-        const itemToView = event.detail.row.Product2.Id;
+            const columnName = event.detail.action.name;
+            const itemToDelete = event.detail.row.Id;
+            const itemToView = event.detail.row.Product2.Id;
         
-        console.log('Voici le id'+ itemToDelete)
+            console.log('Voici le id'+ itemToDelete)
 
-        switch (columnName){
+            switch (columnName){
         
-        case 'supprimer': 
-        this.itemToDelete = itemToDelete;
-        this.showModal = true;
+                case 'supprimer': 
+                    this.itemToDelete = itemToDelete;
+                    this.showModal = true;
 
-             break;
+                break;
     
-        case 'voir_produit':
+                case 'voir_produit':
 
-            window.open("/lightning/r/Product2/"+itemToView+"/view",'_blank');
-            // Ouvre l'url mentionné dans un nouvel onglet
-            break;
+                window.open("/lightning/r/Product2/"+itemToView+"/view",'_blank');
+                 
+                 break;
         }
     
-    }  // La méthode récupère l'évènement rowaction en paramètre et en fonction du bouton cliqué exécute du code
+    }  
     
+    // La méthode récupère l'évènement rowaction en paramètre et en fonction du bouton cliqué, exécute du code (soit affiche le modal soit ouvre une fenetre)
+
     handleModalSuppr(){
     deleteOppLineItem ({opportunityLineItemId: this.itemToDelete })
     .then(() => {
@@ -123,35 +126,33 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
         this.showModal = false;
         this.showToast();
         return refreshApex(this.OpportunityProductResult);
-        
     })
     .catch((error) => {
         console.log('erreur de la suppr');
-    });// Appel de la méthode apex pour supprimer l'enregistrement correspondant à la ligne
-    // Penser à permettre de supprimer la ligne également
-    // La méthode retourne une Promesse (promise) car elle effectue une requete serveur via apex (et elle n'est pas wired)
+    });
+    
+   
     }
+    
+    // Méthode sans paramètre servant à appeler la méthode apex pour supprimer l'enregistrement correspondant à la ligne
+    // la méthode apex prend l'item à supprimer en paramètre et en cas de succès ferme le modal, appel la méthode pour afficher le toast et retourne le tableau rafraichi 
+
 
     handleCloseModal() {
         this.showModal = false;
     }
 
+    // Méthode sans paramètre permettant de réagir au click sur le bouton de fermeture du modal et de fermer modal
+
     showToast() {
         this.showSucces = true;
         setTimeout(() => {
             this.showSucces = false;
-        }, 3000); // Cache la notification après 3 secondes
+        }, 3000); 
     }
 
-    handleAddProduct() {
-        this[NavigationMixin.Navigate]({
-            type: 'standard__action',
-            attributes: {
-                actionName: 'MultiAdd', // Action "Add Product"
-                recordId: this.recordId // L'ID de l'opportunité
-            }
-        });
-    }
+    // Méthode sans paramètre pour aficher le toast et le cacher après 3 secondes
+
 }
 
 

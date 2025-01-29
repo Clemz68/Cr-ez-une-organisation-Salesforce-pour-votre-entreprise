@@ -10,12 +10,10 @@ public class OpportunityProductFactory {
         );
         insert testAccount;
 
+
         Pricebook2 standardPricebook = new Pricebook2(
-
         Id = Test.getStandardPricebookId(),
-
         IsActive = true
-
         );
 
         //Execute an update DML on the Pricebook2 record, to make IsStandard to true
@@ -55,7 +53,7 @@ public class OpportunityProductFactory {
         );
         insert oppItem;
         return oppItem;
-    }
+    } // Créer les enregistrements necessaires pour la classe de test 
 
     @IsTest
     public static User createSystemProfile() {
@@ -74,5 +72,5 @@ public class OpportunityProductFactory {
         insert testUser;
         return testUser;
     }
-
+    // Créer un utilisateur test pour la classe de test 
 }

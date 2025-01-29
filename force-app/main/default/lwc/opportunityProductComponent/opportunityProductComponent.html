@@ -2,7 +2,6 @@
   <div>
     <!-- Lightning Card -->
     <lightning-card title="Opportunité produits" icon-name="standard:opportunity" button >
-         <lightning-button variant="brand" label="Add Products" title="Add your opportunity product" onclick={handleAddProduct} icon-name="utility:add" class="slds-m-left_x-small"></lightning-button>
       
       <template if:false={noproduct}>
         <template if:true={showMessage}>
