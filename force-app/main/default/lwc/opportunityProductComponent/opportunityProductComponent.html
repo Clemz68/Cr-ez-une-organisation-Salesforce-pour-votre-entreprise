@@ -1,9 +1,13 @@
 <template>
   <div>
+    
     <!-- Lightning Card -->
     <lightning-card title="Opportunité produits" icon-name="standard:opportunity" button >
       
+      <!-- S'affiche si il y a des lignes liées à l'opp--> 
       <template if:false={noproduct}>
+
+      <!-- Message d'erreur si il y a un problème de quantité sur un des lignes au minimum--> 
         <template if:true={showMessage}>
           <lightning-tile
             class="slds-m-around_small slds-box slds-p-around_medium lgc-bg slds-theme_warning slds-theme_alert-texture slds-text-bold">
@@ -12,52 +16,56 @@
             </p>
           </lightning-tile>
         </template>
-
+        
+        <!--Tableau de données -->
         <div style="height: 300px;">
           <lightning-datatable key-field="id" data={opportunityLineItem} columns={columns}
             class="slds-theme_default" onrowaction={handleRowAction}>
           </lightning-datatable>
         </div>
       </template>
-
+      
+      <!-- S'affiche si il n'y a pas de lignes liées à l'opp--> 
       <template if:true={noproduct}>
         <div class="noProductText">
             {labels.MyNoProductError}
         </div>
       </template>
-
-    <!-- Modal  -->
-    <template if:true={showModal}>
-      <section role="dialog" tabindex="-1" aria-modal="true"
+      
+      <!-- Modal (boite de dialogue) qui s'affiche si le bouton supprimé est pressé-->
+      <template if:true={showModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true"
         aria-label="Meaningful description of the modal content" class="slds-modal slds-fade-in-open">
-        <div class="slds-modal__container">
-          <!-- Close Button -->
-          <button class="slds-button slds-button_icon slds-modal__close" onclick={handleCloseModal}>
-            <svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
-              <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#close"></use>
-            </svg>
-            <span class="slds-assistive-text">{labels.MyModalAssistive}</span>
-          </button>
+          <div class="slds-modal__container">
 
-          <!-- Modal Content -->
-          <div class="slds-modal__content slds-p-around_medium slds-modal__content_headless" id="modal-content-id-1">
-            <p>
+            <!-- Bouton close -->
+            <button class="slds-button slds-button_icon slds-modal__close" onclick={handleCloseModal}>
+              <svg class="slds-button__icon slds-button__icon_large" aria-hidden="true">
+                <use xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#close"></use>
+              </svg>
+              <span class="slds-assistive-text">{labels.MyModalAssistive}</span>
+            </button>
+
+            <!-- Contenu texte du Modal -->
+            <div class="slds-modal__content slds-p-around_medium slds-modal__content_headless" id="modal-content-id-1">
+              <p>
               {labels.MyConfirmationSuppr1}
-            </p>
-          </div>
+              </p>
+            </div>
 
-          <!-- Modal Footer -->
-          <div class="slds-modal__footer">
-            <button class="slds-button slds-button_neutral" onclick={handleCloseModal}>{labels.MyCancel}</button>
-            <button class="slds-button slds-button_brand" onclick={handleModalSuppr}>{labels.MyDelete}</button>
+            <!-- Footer du Modal avec le choix annuler ou supprimer-->
+            <div class="slds-modal__footer">
+              <button class="slds-button slds-button_neutral" onclick={handleCloseModal}>{labels.MyCancel}</button>
+              <button class="slds-button slds-button_brand" onclick={handleModalSuppr}>{labels.MyDelete}</button>
+            </div>
           </div>
-        </div>
-      </section>
-      <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
-    </template>
-
-    <template if:true={showSucces}>
-      <div class="slds-notify_container slds-is-relative">
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+      </template>
+    
+      <!-- Toast (notification) s'affichant à la suite de la suppression -->
+      <template if:true={showSucces}>
+        <div class="slds-notify_container slds-is-relative">
           <div class="slds-notify slds-notify_toast slds-theme_success" role="status">
               <lightning-icon icon-name="action:approval" alternative-text="Success" variant="success" size="small" 
                               class="slds-m-right_small slds-no-flex slds-align-top">
@@ -68,8 +76,9 @@
                   </h2>
               </div>
           </div>
-      </div>
-  </template>
-  </lightning-card>
+        </div>
+      </template>
+
+    </lightning-card>
   </div>
 </template>

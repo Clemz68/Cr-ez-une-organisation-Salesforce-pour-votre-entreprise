@@ -3,10 +3,15 @@ import getOpportunityProductList from '@salesforce/apex/OpportunityProductContro
 import getSystemProfile from '@salesforce/apex/SystemProfile.getSystemProfile';
 import deleteOppLineItem from '@salesforce/apex/OpportunityProductController.deleteOppLineItem';
 import { refreshApex } from '@salesforce/apex';
-import { NavigationMixin } from 'lightning/navigation';
 import { LABELS } from './labels';
 
 const labels = LABELS;
+
+/** 
+ Constante qui contient les colonnes de la table de donnée.
+ Les 5 premières colonnes sont des champs SFDC les 2 dernières sont des variables créées pour le composant.
+ */
+
 const columns = [
     {label: labels.MyProductName, fieldName: 'productName', type: 'text' },
     {label: labels.MyQuantity, fieldName: 'Quantity', type: 'number', 
@@ -20,18 +25,26 @@ const columns = [
     {label: labels.MyDelete, type: 'button-icon', typeAttributes: { iconName: 'utility:delete', name: 'supprimer', title: 'Clickez pour supprimer'}},
     ]
 
-export default class OpportunityProductComponent extends NavigationMixin (LightningElement)
+export default class OpportunityProductComponent extends LightningElement
 {
     @api recordId;
-    @track opportunityLineItem = [];
-    @track OpportunityProductResult;
-    @track showModal = false;
-    @track showSucces = false;
-    noproduct = true;
+    opportunityLineItem = [];
+    OpportunityProductResult;
+    showModal = false;
+    showSucces = false;
     showMessage = false;
+    noproduct = true;
     columns = columns
     labels = LABELS;
     userProfileName;
+
+    /**  
+    * Décorateur @Wire de la méthode Apex pour récupérer les données de manière réactif.
+    * Récupère la liste d'opportunités produits d'une opportunité en fonction de son ID.
+    * @param {Object} result Objet contenant les données ou une erreur renvoyée par Apex.
+    * @param {Array} result.data Tableau des Opportunité produits liés à l'opportunité.
+    * @param {Error} result.error Erreur retournée en cas d'échec de récupération des données.
+    */
 
     @wire(getOpportunityProductList, { opportunityId: '$recordId' })
     wiredgetOpportunityProductList (result) {
@@ -39,10 +52,15 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
     const { data, error } = result;
 
         if (data) {
-            let quantityClass = '';
-            this.columns = this.specificitySalesProfile(columns); 
+            
+            // Suppression d'une colonne en fonction du profil utilisateur. 
+            this.columns = this.specificitySalesProfile(); 
+
+            // Intération et transformation des données pour ajouter le style CSS et accéder à des champ imbriqués.
             this.opportunityLineItem = data.map((record) => {
-            quantityClass = this.quantityAlert (record); 
+            
+            // Retourne une classe CSS et affiche un message d'erreur. 
+            let quantityClass = this.quantityAlert (record); 
             return {... record, 
             quantityClass: quantityClass,
             productName: record.Product2.Name, 
@@ -56,12 +74,11 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
         }
     }
         
-        // @wire de la méthode Apex pour récupérer le tableau de manière réactif, le record Id est passé en argument
-        // La méthode wired prend le résult du @wire (contenant data, error) en tant que paramètre  
-        // Si récupération des données réussie appel d'une méthode pour check le profile de l'user 
-        // appel d'une méthode qui gère l'affichage d'un message d'erreur et le style css d'une colonne du tableau
-        // Utilisation de map pour aplatir les données: itère sur les lignes du tableau, facilite l'accès aux champs imbriqués (product name et quantity in stock) et applique le style au champ quantité 
-        // Si le tableau mapé ne contient pas de données noproduct = true ce qui permet l'affichage d'un msg via htlm
+    /** 
+     * Donne un style CSS en adéquation avec le nombre de produit en stock par rapport à la quantité de produit de l'opportuntié produit.
+     * @param {Object} record Enregistrement Opportunité produit.
+     * @return {String} Classe CSS.
+    */ 
 
     quantityAlert(record) {
     
@@ -72,7 +89,12 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
             return 'slds-text-color_success slds-text-bold'
         }
     } 
-        // La méthode prend en paramètre l'enregistrement itéré par map, affiche ou non le msg souhaité, et renvoie le style Css correspondant  
+
+    /** 
+    * Récupère le profil de l'utilisateur et ajuste les colonnes à afficher en fonction du profil.
+    * Enlève la colonne VoirProduit si le profil obtenu est égal à commercial. 
+    * @return {Array} les columns à afficher après vérification du profil 
+    */
 
     specificitySalesProfile(){
         
@@ -91,7 +113,11 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
 
         return columns;
     }   
-        // La méthode prend pas de paramètre et returne le tableau en enlevant la colonne VoirProduit si le profil obtenu en appelant une classe apex est = à commercial 
+    
+    /**
+     * Récupère l'évenement de clic sur les boutons suppr et voir produit et ouvre un modal ou une page d'enregistrement en fonction du bouton 
+     * @param {CustomEvent} event 
+     */
 
     async handleRowAction(event) {
             const columnName = event.detail.action.name;
@@ -117,7 +143,9 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
     
     }  
     
-    // La méthode récupère l'évènement rowaction en paramètre et en fonction du bouton cliqué, exécute du code (soit affiche le modal soit ouvre une fenetre)
+    /**
+     * Récupère l'évenement de clic sur le bouton supprimer du modal et appel la méthode Apex pour supprimer l'enregistrement de la ligne 
+     */
 
     handleModalSuppr(){
     deleteOppLineItem ({opportunityLineItemId: this.itemToDelete })
@@ -125,24 +153,24 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
         console.log('succès de la suppr');
         this.showModal = false;
         this.showToast();
-        return refreshApex(this.OpportunityProductResult);
+        this.handleRefresh();
     })
     .catch((error) => {
         console.log('erreur de la suppr');
     });
-    
-   
     }
     
-    // Méthode sans paramètre servant à appeler la méthode apex pour supprimer l'enregistrement correspondant à la ligne
-    // la méthode apex prend l'item à supprimer en paramètre et en cas de succès ferme le modal, appel la méthode pour afficher le toast et retourne le tableau rafraichi 
-
+     /**
+     * Récupère l'évenement de clic sur le bouton supprimer du modal et ferme le modal
+     */
 
     handleCloseModal() {
         this.showModal = false;
     }
 
-    // Méthode sans paramètre permettant de réagir au click sur le bouton de fermeture du modal et de fermer modal
+     /**
+     * Affiche un toast qui notifie le succes de la suppression  pendant 10 secondes
+     */
 
     showToast() {
         this.showSucces = true;
@@ -150,9 +178,16 @@ export default class OpportunityProductComponent extends NavigationMixin (Lightn
             this.showSucces = false;
         }, 10000); 
     }
+ 
+    /**
+     * Rafraichis les données du tableau d'opportunité produits en appelant refreshApex
+     */
 
-    // Méthode sans paramètre pour aficher le toast et le cacher après 3 secondes
+    handleRefresh() {
+    refreshApex(this.OpportunityProductResult)
+    }
 
 }
 
 
+ 
