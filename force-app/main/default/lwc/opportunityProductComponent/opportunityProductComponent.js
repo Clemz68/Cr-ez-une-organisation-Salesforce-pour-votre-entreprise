@@ -6,12 +6,6 @@ import { refreshApex } from '@salesforce/apex';
 import { LABELS } from './labels';
 
 const labels = LABELS;
-
-/** 
- Constante qui contient les colonnes de la table de donnée.
- Les 5 premières colonnes sont des champs SFDC les 2 dernières sont des variables créées pour le composant.
- */
-
 const columns = [
     {label: labels.MyProductName, fieldName: 'productName', type: 'text' },
     {label: labels.MyQuantity, fieldName: 'Quantity', type: 'number', 
@@ -52,24 +46,16 @@ export default class OpportunityProductComponent extends LightningElement
     const { data, error } = result;
 
         if (data) {
-            
-            // Suppression d'une colonne en fonction du profil utilisateur. 
             this.columns = this.specificitySalesProfile(); 
-
-            // Intération et transformation des données pour ajouter le style CSS et accéder à des champ imbriqués.
             this.opportunityLineItem = data.map((record) => {
-            
-            // Retourne une classe CSS et affiche un message d'erreur. 
             let quantityClass = this.quantityAlert (record); 
             return {... record, 
             quantityClass: quantityClass,
             productName: record.Product2.Name, 
             QuantityInStock: record.Product2.QuantityInStock__c,  
         }}),
-            console.log(this.opportunityLineItem);
             this.noproduct = this.opportunityLineItem.length === 0;
         } else if (error) {
-            console.error('Erreur lors de la récupération des données :', error);
             this.opportunityLineItem = [];
         }
     }
@@ -101,16 +87,13 @@ export default class OpportunityProductComponent extends LightningElement
         this.userProfileName = getSystemProfile ()
     
         .then((userProfileName) => {
-            console.log(`thenCatchApproach result =>`+ userProfileName);
-            
             if (userProfileName === 'Commercial') {
                this.columns = [...columns].filter(columns => columns.fieldName != 'VoirProduit');
             }
         })
         .catch((error) => {
-          console.log(`thenCatchApproach error => `);
+    
         });
-
         return columns;
     }   
     
@@ -120,27 +103,22 @@ export default class OpportunityProductComponent extends LightningElement
      */
 
     async handleRowAction(event) {
-            const columnName = event.detail.action.name;
-            const itemToDelete = event.detail.row.Id;
-            const itemToView = event.detail.row.Product2.Id;
-        
-            console.log('Voici le id'+ itemToDelete)
 
-            switch (columnName){
-        
-                case 'supprimer': 
-                    this.itemToDelete = itemToDelete;
-                    this.showModal = true;
-
-                break;
+        const columnName = event.detail.action.name;
+        const itemToDelete = event.detail.row.Id;
+        const itemToView = event.detail.row.Product2.Id;
     
-                case 'voir_produit':
+        switch (columnName){
+        
+            case 'supprimer': 
+                this.itemToDelete = itemToDelete;
+                this.showModal = true;
+            break;
 
+            case 'voir_produit':
                 window.open("/lightning/r/Product2/"+itemToView+"/view",'_blank');
-                 
-                 break;
+            break;
         }
-    
     }  
     
     /**
@@ -148,16 +126,14 @@ export default class OpportunityProductComponent extends LightningElement
      */
 
     handleModalSuppr(){
-    deleteOppLineItem ({opportunityLineItemId: this.itemToDelete })
-    .then(() => {
-        console.log('succès de la suppr');
-        this.showModal = false;
-        this.showToast();
-        this.handleRefresh();
-    })
-    .catch((error) => {
-        console.log('erreur de la suppr');
-    });
+        deleteOppLineItem ({opportunityLineItemId: this.itemToDelete })
+        .then(() => {
+            this.showModal = false;
+            this.showToast();
+            this.handleRefresh();
+        })
+        .catch((error) => {
+        });
     }
     
      /**
@@ -181,10 +157,10 @@ export default class OpportunityProductComponent extends LightningElement
  
     /**
      * Rafraichis les données du tableau d'opportunité produits en appelant refreshApex
-     */
+    */
 
     handleRefresh() {
-    refreshApex(this.OpportunityProductResult)
+        refreshApex(this.OpportunityProductResult)
     }
 
 }

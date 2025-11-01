@@ -1,31 +1,36 @@
-@IsTest
+/** 
+ * @author Clem
+ * @date 2025 
+ */
 
+@IsTest
 public class OpportunityProductFactory {
 
+    /** 
+    * @name createTestOpportunityLineItem
+    * @description Génère les données de test pour un OpportunityLineItem
+    * @return  OpportunityLineItem de test
+    */
+
     @IsTest 
-    public static OpportunityLineItem createTestOpportunityLineItem () {
-        
-        Account testAccount = new Account(
-        Name = 'Test Account'
-        );
+    public static OpportunityLineItem createTestOpportunityLineItem() {
+
+        Account testAccount = new Account(Name = 'Test Account');
         insert testAccount;
 
         Pricebook2 standardPricebook = new Pricebook2(
-        Id = Test.getStandardPricebookId(),
-        IsActive = true
+            Id = Test.getStandardPricebookId(),
+            IsActive = true
         );
-
-        //Execute an update DML on the Pricebook2 record, to make IsStandard to true
-
-        Update standardPricebook;
+        update standardPricebook;
 
         Opportunity TestOpp = new Opportunity(
-                Name= 'Test Opportunity',
-                StageName= 'Prospecting',
-                CloseDate= System.today().addDays(30),
-                Amount= 10000,
-                AccountId = testAccount.Id,
-                Pricebook2Id= standardPricebook.Id
+            Name = 'Test Opportunity',
+            StageName = 'Prospecting',
+            CloseDate = System.today().addDays(30),
+            Amount = 10000,
+            AccountId = testAccount.Id,
+            Pricebook2Id = standardPricebook.Id
         );
         insert TestOpp;
 
@@ -44,18 +49,25 @@ public class OpportunityProductFactory {
         insert pricebookEntry;
 
         OpportunityLineItem oppItem = new OpportunityLineItem(
-               UnitPrice= 75000,
-               Quantity= 1,
-               ServiceDate= System.today().addDays(30),
-               OpportunityId= TestOpp.Id,
-               PricebookEntryId = pricebookEntry.Id   
+            UnitPrice = 75000,
+            Quantity = 1,
+            ServiceDate = System.today().addDays(30),
+            OpportunityId = TestOpp.Id,
+            PricebookEntryId = pricebookEntry.Id   
         );
         insert oppItem;
         return oppItem;
-    } // Créer les enregistrements necessaires pour la classe de test 
+    }
+
+    /** 
+    * @name createSystemProfile
+    * @description Génère un utilisateur avec profil Standard User pour les tests
+    * @return  User de test
+    */
 
     @IsTest
     public static User createSystemProfile() {
+
         Profile p = [SELECT Id FROM Profile WHERE Name = 'Standard User' LIMIT 1];
         User testUser = new User(
             LastName = 'Test',
@@ -71,5 +83,4 @@ public class OpportunityProductFactory {
         insert testUser;
         return testUser;
     }
-    // Créer un utilisateur test pour la classe de test 
 }
